@@ -8,11 +8,16 @@ export interface SongResult {
   audioUrl?: string;
 }
 
-export async function generateSong(theme: string, genre: string): Promise<SongResult> {
+export async function generateSong(
+  songStyle: string,
+  lyricsTheme: string,
+  genre: string
+): Promise<SongResult> {
   try {
     const response = await axios.post(`${API_BASE_URL}/generate`, {
-      theme,
-      style: genre,
+      style: songStyle || genre,
+      lyricsTheme: lyricsTheme,
+      genre: genre,
       verses: 3,
       chorus: true,
       model: 'V4'
