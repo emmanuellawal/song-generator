@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
-import { Button, Text, TextInput, SegmentedButtons, Menu } from 'react-native-paper';
+import { Button, Text, TextInput, SegmentedButtons } from 'react-native-paper';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { generateSong } from '../services/songService';
@@ -14,6 +14,7 @@ type GenerateScreenProps = {
   route: RouteProp<any, 'Generate'>;
 };
 
+// Keep the list for reference in generation
 const MUSIC_STYLES = [
   { label: 'Pop', value: 'pop' },
   { label: 'Rock', value: 'rock' },
@@ -47,21 +48,10 @@ const GENRES = [
 
 export default function GenerateScreen({ navigation, route }: GenerateScreenProps) {
   const [songStyle, setSongStyle] = useState(route.params?.songStyle || '');
-  const [songStyleLabel, setSongStyleLabel] = useState(() => {
-    const style = MUSIC_STYLES.find(s => s.value === route.params?.songStyle);
-    return style ? style.label : 'Select a style';
-  });
   const [lyricsTheme, setLyricsTheme] = useState(route.params?.lyricsTheme || '');
   const [genre, setGenre] = useState('pop');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [menuVisible, setMenuVisible] = useState(false);
-
-  const handleStyleSelect = (value: string, label: string) => {
-    setSongStyle(value);
-    setSongStyleLabel(label);
-    setMenuVisible(false);
-  };
 
   const handleGenerate = async () => {
     if (!songStyle && !lyricsTheme.trim()) {
@@ -88,42 +78,27 @@ export default function GenerateScreen({ navigation, route }: GenerateScreenProp
         Create Your Song
       </Text>
 
-      <Menu
-        visible={menuVisible}
-        onDismiss={() => setMenuVisible(false)}
-        anchor={
-          <Button
-            mode="outlined"
-            onPress={() => setMenuVisible(true)}
-            style={styles.styleButton}
-            contentStyle={styles.styleButtonContent}
-            icon="music"
-            textColor="#000000"
-          >
-            <Text numberOfLines={1} style={styles.buttonText}>
-              {songStyleLabel}
-            </Text>
-          </Button>
-        }
-        contentStyle={[styles.menuContent, { backgroundColor: '#6200ee' }]}
-        style={styles.menuContainer}
-      >
-        {MUSIC_STYLES.map((style) => (
-          <Menu.Item
-            key={style.value}
-            onPress={() => handleStyleSelect(style.value, style.label)}
-            title={style.label}
-            titleStyle={styles.menuItemText}
-            style={styles.menuItem}
-          />
-        ))}
-      </Menu>
+      <TextInput
+        label="Song Style"
+        value={songStyle}
+        onChangeText={setSongStyle}
+        style={[styles.input, styles.inputText]}
+        placeholder="Enter the song style..."
+        placeholderTextColor="#666666"
+        theme={{
+          colors: {
+            text: '#000000',
+            placeholder: '#666666',
+            onSurfaceVariant: '#000000',
+          },
+        }}
+      />
 
       <TextInput
         label="Lyrics Theme"
         value={lyricsTheme}
         onChangeText={setLyricsTheme}
-        style={styles.input}
+        style={[styles.input, styles.inputText]}
         multiline
         numberOfLines={2}
         placeholder="Enter the story or message theme..."
@@ -184,43 +159,10 @@ const styles = StyleSheet.create({
     fontSize: IS_SMALL_DEVICE ? 14 : 16,
     color: '#000000',
   },
-  styleButton: {
-    width: '100%',
-    height: 48,
-    marginBottom: IS_SMALL_DEVICE ? 16 : 20,
-    backgroundColor: '#f5f5f5',
-    borderColor: '#000000',
-  },
-  styleButtonContent: {
-    height: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-  },
-  buttonText: {
-    flex: 1,
-    textAlign: 'left',
-    marginLeft: 8,
-    fontSize: IS_SMALL_DEVICE ? 14 : 16,
-    color: '#000000',
-  },
-  menuContainer: {
-    width: '100%',
-    marginTop: 4,
-  },
-  menuContent: {
-    maxHeight: 192, // Height of 4 items (48px each)
-    width: '100%',
-    marginLeft: -8, // Adjust for menu positioning
-  },
-  menuItem: {
-    height: 48,
-    justifyContent: 'center',
-  },
-  menuItemText: {
-    color: '#ffffff',
-    fontSize: IS_SMALL_DEVICE ? 14 : 16,
-    marginLeft: -24, // Adjust text position
+  inputText: {
+    fontSize: IS_SMALL_DEVICE ? 16 : 18,
+    fontWeight: '500',
+    letterSpacing: 0.15,
   },
   label: {
     marginBottom: IS_SMALL_DEVICE ? 8 : 10,

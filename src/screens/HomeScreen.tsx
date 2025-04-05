@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Dimensions, Platform } from 'react-native';
-import { Button, Text, Surface, useTheme, TextInput, Menu } from 'react-native-paper';
+import { Button, Text, Surface, useTheme, TextInput } from 'react-native-paper';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -12,6 +12,7 @@ type HomeScreenProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
+// Keep the list for reference in generation
 const MUSIC_STYLES = [
   { label: 'Pop', value: 'pop' },
   { label: 'Rock', value: 'rock' },
@@ -46,15 +47,7 @@ const GENRES = [
 export default function HomeScreen({ navigation }: HomeScreenProps) {
   const theme = useTheme();
   const [songStyle, setSongStyle] = React.useState('');
-  const [songStyleLabel, setSongStyleLabel] = React.useState('Select a style');
   const [lyricsTheme, setLyricsTheme] = React.useState('');
-  const [menuVisible, setMenuVisible] = React.useState(false);
-
-  const handleStyleSelect = (value: string, label: string) => {
-    setSongStyle(value);
-    setSongStyleLabel(label);
-    setMenuVisible(false);
-  };
 
   return (
     <ImageBackground 
@@ -74,41 +67,29 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
           <Surface style={styles.searchContainer} elevation={4}>
             <View style={styles.inputsContainer}>
-              <Menu
-                visible={menuVisible}
-                onDismiss={() => setMenuVisible(false)}
-                anchor={
-                  <Button
-                    mode="outlined"
-                    onPress={() => setMenuVisible(true)}
-                    style={styles.styleButton}
-                    contentStyle={styles.styleButtonContent}
-                    icon="music"
-                    textColor="#000000"
-                  >
-                    <Text numberOfLines={1} style={styles.buttonText}>
-                      {songStyleLabel}
-                    </Text>
-                  </Button>
-                }
-                contentStyle={[styles.menuContent, { backgroundColor: '#6200ee' }]}
-                style={styles.menuContainer}
-              >
-                {MUSIC_STYLES.map((style) => (
-                  <Menu.Item
-                    key={style.value}
-                    onPress={() => handleStyleSelect(style.value, style.label)}
-                    title={style.label}
-                    titleStyle={styles.menuItemText}
-                    style={styles.menuItem}
-                  />
-                ))}
-              </Menu>
+              <TextInput
+                placeholder="Enter song style..."
+                value={songStyle}
+                onChangeText={setSongStyle}
+                style={[styles.searchInput, styles.inputText]}
+                mode="outlined"
+                outlineColor="transparent"
+                activeOutlineColor="#6200ee"
+                label="Song Style"
+                placeholderTextColor="#666666"
+                theme={{
+                  colors: {
+                    text: '#000000',
+                    placeholder: '#666666',
+                    onSurfaceVariant: '#000000',
+                  },
+                }}
+              />
               <TextInput
                 placeholder="Enter lyrics theme..."
                 value={lyricsTheme}
                 onChangeText={setLyricsTheme}
-                style={styles.searchInput}
+                style={[styles.searchInput, styles.inputText]}
                 mode="outlined"
                 outlineColor="transparent"
                 activeOutlineColor="#6200ee"
@@ -127,7 +108,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               mode="contained"
               onPress={() => {
                 navigation.navigate('Generate', { 
-                  songStyle: songStyle,
+                  songStyle: songStyle.trim().toLowerCase(),
                   lyricsTheme: lyricsTheme.trim()
                 });
               }}
@@ -209,42 +190,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     color: '#000000',
   },
-  styleButton: {
-    width: '100%',
-    height: 48,
-    backgroundColor: '#ffffff',
-    borderColor: '#000000',
-  },
-  styleButtonContent: {
-    height: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-  },
-  buttonText: {
-    flex: 1,
-    textAlign: 'left',
-    marginLeft: 8,
-    fontSize: IS_SMALL_DEVICE ? 14 : 16,
-    color: '#000000',
-  },
-  menuContainer: {
-    width: '100%',
-    marginTop: 4,
-  },
-  menuContent: {
-    maxHeight: 192, // Height of 4 items (48px each)
-    width: '100%',
-    marginLeft: -8, // Adjust for menu positioning
-  },
-  menuItem: {
-    height: 48,
-    justifyContent: 'center',
-  },
-  menuItemText: {
-    color: '#ffffff',
-    fontSize: IS_SMALL_DEVICE ? 14 : 16,
-    marginLeft: -24, // Adjust text position
+  inputText: {
+    fontSize: IS_SMALL_DEVICE ? 16 : 18,
+    fontWeight: '500',
+    letterSpacing: 0.15,
   },
   searchButton: {
     backgroundColor: '#6200ee',
